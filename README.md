@@ -48,6 +48,13 @@ const result = arr.reduce((acc, elem, index) => {
 }, 0)
 ```
 
+Find:
+
+```js
+const firstEven = arr.find((elem) => (elem % 2) === 0)
+```
+
+
 ## License
 
 ISC

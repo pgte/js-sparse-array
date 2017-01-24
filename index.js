@@ -85,7 +85,15 @@ module.exports = class SparseArray {
     return acc
   }
 
-
+  find (finder) {
+    let i = 0, found, last
+    while ((i < this.length) && !found) {
+      last = this.get(i)
+      found = finder(last)
+      i++
+    }
+    return found ? last : undefined
+  }
 
   _internalPositionFor (index, noCreate) {
     const bytePos = this._bytePosFor(index, noCreate)
