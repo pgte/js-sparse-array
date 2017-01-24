@@ -24,7 +24,8 @@ module.exports = class SparseArray {
       }
     } else {
       if (pos === -1) {
-        pos = this._setNextBit()
+        pos = this._data.length
+        this._setBit(index)
       }
       this._data[pos] = value
     }
@@ -112,7 +113,7 @@ module.exports = class SparseArray {
     return bytePos
   }
 
-  _setBit (index, value) {
+  _setBit (index) {
     const bytePos = this._bytePosFor(index, false)
     this._bitArrays[bytePos] |= (1 << (index - (bytePos * BITS_PER_BYTE)))
   }
