@@ -27,7 +27,7 @@ module.exports = class SparseArray {
         pos = this._data.length
         this._setBit(index)
       }
-      this._data[pos] = value
+      this._setInternalPos(pos, index, value)
     }
     this._changed = true
   }
@@ -41,7 +41,7 @@ module.exports = class SparseArray {
     if (pos === -1) {
       return undefined
     }
-    return this._data[pos]
+    return this._data[pos][1]
   }
 
   push (value) {
@@ -101,7 +101,9 @@ module.exports = class SparseArray {
     const previousPopCount = this._bitArrays.slice(0, bytePos).reduce(popCountReduce, 0)
 
     const mask = ~(0xffffffff << (bitPos + 1))
-    return previousPopCount + popCount(byte & mask) - 1
+    const bytePopCount = popCount(byte & mask)
+    const arrayPos = previousPopCount + bytePopCount - 1
+    return arrayPos
   }
 
   _bytePosFor (index, noCreate) {
@@ -123,10 +125,9 @@ module.exports = class SparseArray {
     this._bitArrays[bytePos] &= ~(1 << (index - (bytePos * BITS_PER_BYTE)))
   }
 
-  _setNextBit () {
-    const pos = this._data.length
-    this._setBit(pos)
-    return pos
+  _setInternalPos(pos, index, elem) {
+    this._data[pos] = [index, elem]
+    this._data.sort(sortInternal)
   }
 }
 
@@ -139,4 +140,8 @@ function popCount(_v) {
   v = v - ((v >> 1) & 0x55555555)                    // reuse input as temporary
   v = (v & 0x33333333) + ((v >> 2) & 0x33333333)     // temp
   return ((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24
+}
+
+function sortInternal (a, b) {
+  return a[0] - b[0]
 }
