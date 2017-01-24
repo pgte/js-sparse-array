@@ -19,7 +19,7 @@ module.exports = class SparseArray {
       // unsetting
       if (pos !== -1) {
         // remove item from bit array and array itself
-        this._data.splice(pos, 1)
+        this._unsetInternalPos(pos)
         this._unsetBit(index)
       }
     } else {
@@ -51,7 +51,8 @@ module.exports = class SparseArray {
 
   get length () {
     if (this._changed) {
-      this._length = this._bitArrays.reduce(popCountReduce, 0)
+      const last = this._data[this._data.length - 1]
+      this._length = last ? last[0] + 1 : 0
       this._changed = false
     }
     return this._length
@@ -79,7 +80,8 @@ module.exports = class SparseArray {
     let i = 0
     let acc = initialValue
     while(i < this.length) {
-      acc = reducer(acc, this.get(i), i)
+      const value = this.get(i)
+      acc = reducer(acc, value, i)
       i++
     }
     return acc
@@ -136,6 +138,10 @@ module.exports = class SparseArray {
   _setInternalPos(pos, index, elem) {
     this._data[pos] = [index, elem]
     this._data.sort(sortInternal)
+  }
+
+  _unsetInternalPos (pos) {
+    this._data.splice(pos, 1)
   }
 }
 
