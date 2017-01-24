@@ -9,6 +9,8 @@ module.exports = class SparseArray {
   constructor () {
     this._bitArrays = []
     this._data = []
+    this._changed = false
+    this._length = 0
   }
 
   set (index, value) {
@@ -26,6 +28,7 @@ module.exports = class SparseArray {
       }
       this._data[pos] = value
     }
+    this._changed = true
   }
 
   unset (index) {
@@ -39,6 +42,49 @@ module.exports = class SparseArray {
     }
     return this._data[pos]
   }
+
+  push (value) {
+    this.set(this.length, value)
+    return this.length
+  }
+
+  get length () {
+    if (this._changed) {
+      this._length = this._bitArrays.reduce(popCountReduce, 0)
+      this._changed = false
+    }
+    return this._length
+  }
+
+  forEach (iterator) {
+    let i = 0
+    while(i < this.length) {
+      iterator(this.get(i), i, this)
+      i++
+    }
+  }
+
+  map (iterator) {
+    let i = 0
+    let mapped = new Array(this.length)
+    while(i < this.length) {
+      mapped[i] = iterator(this.get(i), i, this)
+      i++
+    }
+    return mapped
+  }
+
+  reduce (reducer, initialValue) {
+    let i = 0
+    let acc = initialValue
+    while(i < this.length) {
+      acc = reducer(acc, this.get(i), i)
+      i++
+    }
+    return acc
+  }
+
+
 
   _internalPositionFor (index, noCreate) {
     const bytePos = this._bytePosFor(index, noCreate)
