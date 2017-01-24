@@ -1,5 +1,7 @@
 # sparse-array
 
+[![Build Status](https://travis-ci.org/pgte/js-sparse-array.svg?branch=master)](https://travis-ci.org/pgte/js-sparse-array)
+
 Sparse array implementation in JS with no dependencies
 
 ## Install
