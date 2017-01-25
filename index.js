@@ -9,8 +9,9 @@ module.exports = class SparseArray {
   constructor () {
     this._bitArrays = []
     this._data = []
-    this._changed = false
     this._length = 0
+    this._changedLength = false
+    this._changedData = false
   }
 
   set (index, value) {
@@ -21,15 +22,21 @@ module.exports = class SparseArray {
         // remove item from bit array and array itself
         this._unsetInternalPos(pos)
         this._unsetBit(index)
+        this._changedLength = true
+        this._changedData = true
       }
     } else {
+      let needsSort = false
       if (pos === -1) {
         pos = this._data.length
         this._setBit(index)
+        this._changedData = true
+      } else {
+        needsSort = true
       }
-      this._setInternalPos(pos, index, value)
+      this._setInternalPos(pos, index, value, needsSort)
+      this._changedLength = true
     }
-    this._changed = true
   }
 
   unset (index) {
@@ -41,6 +48,7 @@ module.exports = class SparseArray {
     if (pos === -1) {
       return undefined
     }
+    this._sortData()
     return this._data[pos][1]
   }
 
@@ -50,10 +58,11 @@ module.exports = class SparseArray {
   }
 
   get length () {
-    if (this._changed) {
+    this._sortData()
+    if (this._changedLength) {
       const last = this._data[this._data.length - 1]
       this._length = last ? last[0] + 1 : 0
-      this._changed = false
+      this._changedLength = false
     }
     return this._length
   }
@@ -135,13 +144,41 @@ module.exports = class SparseArray {
     this._bitArrays[bytePos] &= ~(1 << (index - (bytePos * BITS_PER_BYTE)))
   }
 
-  _setInternalPos(pos, index, elem) {
-    this._data[pos] = [index, elem]
-    this._data.sort(sortInternal)
+  _setInternalPos(pos, index, value, needsSort) {
+    const data =this._data
+    const elem = [index, value]
+    if (needsSort) {
+      this._sortData()
+      data[pos] = elem
+    } else {
+      // new element. just shove it into the array
+      // but be nice about where we shove it
+      // in order to make sorting it later easier
+      if (data.length) {
+        if (data[data.length - 1][0] >= index) {
+          data.push(elem)
+        } else if (data[0][0] <= index) {
+          data.unshift(elem)
+        } else {
+          const randomIndex = Math.round(data.length / 2)
+          this._data = data.slice(0, randomIndex).concat(elem).concat(data.slice(randomIndex))
+        }
+      } else {
+        this._data.push(elem)
+      }
+      this._changedData = true
+      this._changedLength = true
+    }
   }
 
   _unsetInternalPos (pos) {
     this._data.splice(pos, 1)
+  }
+
+  _sortData () {
+    if (this._changedData) {
+      this._data.sort(sortInternal)
+    }
   }
 }
 
