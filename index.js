@@ -180,6 +180,47 @@ module.exports = class SparseArray {
       this._data.sort(sortInternal)
     }
   }
+
+  bitField () {
+    const bytes = []
+    let pendingBitsForResultingByte = 8
+    let pendingBitsForNewByte = 0
+    let resultingByte = 0
+    let newByte
+    const pending = this._bitArrays.slice()
+    while (pending.length || pendingBitsForNewByte) {
+      if (pendingBitsForNewByte === 0) {
+        newByte = pending.shift()
+        pendingBitsForNewByte = 7
+      }
+
+      const usingBits = Math.min(pendingBitsForNewByte, pendingBitsForResultingByte)
+      const mask = ~(0b11111111 << usingBits)
+      const masked = newByte & mask
+      resultingByte |= masked << (8 - pendingBitsForResultingByte)
+      newByte = newByte >>> usingBits
+      pendingBitsForNewByte -= usingBits
+      pendingBitsForResultingByte -= usingBits
+
+      if (!pendingBitsForResultingByte || (!pendingBitsForNewByte && !pending.length)) {
+        bytes.push(resultingByte)
+        resultingByte = 0
+        pendingBitsForResultingByte = 8
+      }
+    }
+
+    // remove trailing zeroes
+    for(var i = bytes.length - 1; i > 0; i--) {
+      const value = bytes[i]
+      if (value === 0) {
+        bytes.pop()
+      } else {
+        break
+      }
+    }
+
+    return bytes
+  }
 }
 
 function popCountReduce (count, byte) {

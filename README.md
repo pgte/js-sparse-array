@@ -54,6 +54,11 @@ Find:
 const firstEven = arr.find((elem) => (elem % 2) === 0)
 ```
 
+Internal bit field:
+
+```js
+const bitField = arr.bitField()
+```
 
 ## License
 
