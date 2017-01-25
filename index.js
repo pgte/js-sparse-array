@@ -221,6 +221,11 @@ module.exports = class SparseArray {
 
     return bytes
   }
+
+  compactArray () {
+    this._sortData()
+    return this._data.map(valueOnly)
+  }
 }
 
 function popCountReduce (count, byte) {
@@ -236,4 +241,8 @@ function popCount(_v) {
 
 function sortInternal (a, b) {
   return a[0] - b[0]
+}
+
+function valueOnly (elem) {
+  return elem[1]
 }

@@ -12,14 +12,14 @@ $ npm install sparse-array --save
 
 ## Use
 
-Create:
+### Create:
 
 ```js
 const SparseArray = require('sparse-array')
 const arr = new SparseArray()
 ```
 
-Set, get and unset:
+### Set, get and unset:
 
 ```js
 const index = 0
@@ -32,7 +32,7 @@ arr.unset(index)
 arr.get(index) // undefined
 ```
 
-Iterate:
+### Iterate:
 
 ```js
 arr.forEach((elem, index) => {
@@ -48,16 +48,24 @@ const result = arr.reduce((acc, elem, index) => {
 }, 0)
 ```
 
-Find:
+### Find:
 
 ```js
 const firstEven = arr.find((elem) => (elem % 2) === 0)
 ```
 
-Internal bit field:
+### Internal representation:
+
+#### Bit field:
 
 ```js
 const bitField = arr.bitField()
+```
+
+#### Compact array:
+
+```js
+const compacted = arr.compactArray()
 ```
 
 ## License
