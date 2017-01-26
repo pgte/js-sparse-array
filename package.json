@@ -1,6 +1,6 @@
 {
   "name": "sparse-array",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Sparse array implementation in JS with no dependencies",
   "main": "index.js",
   "scripts": {
