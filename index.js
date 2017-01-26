@@ -44,11 +44,11 @@ module.exports = class SparseArray {
   }
 
   get (index) {
+    this._sortData()
     const pos = this._internalPositionFor(index, true)
     if (pos === -1) {
       return undefined
     }
-    this._sortData()
     return this._data[pos][1]
   }
 
