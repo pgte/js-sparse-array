@@ -179,6 +179,8 @@ module.exports = class SparseArray {
     if (this._changedData) {
       this._data.sort(sortInternal)
     }
+
+    this._changedData = false
   }
 
   bitField () {
